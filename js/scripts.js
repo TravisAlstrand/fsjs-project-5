@@ -1,6 +1,7 @@
 const randomUserURL = 'https://randomuser.me/api/?results=12&nat=US&exc=login, registered, gender, id';
 const gallery = document.getElementById('gallery');
 const modalContainer = document.querySelector('.modal-container');
+const searchBarDiv = document.querySelector('.search-container');
 let employees = []; // will fill array with random people
 let openModal; // will store index of currently open modal
 
@@ -108,6 +109,21 @@ function toggleModalHidden() {
 }
 
 // ===========================================================================
+// Search Bar
+// ===========================================================================
+
+// add search bar html to page
+searchBarDiv.innerHTML = `
+    <form action="#" method="get">
+        <input type="search" id="search-input" class="search-input" placeholder="Search...">
+        <input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
+    </form>
+`;
+
+// select input element
+const searchBar = document.getElementById('search-input');
+
+// ===========================================================================
 // EVENT LISTENERS
 // ===========================================================================
 
@@ -176,3 +192,19 @@ document.addEventListener('click', (e) => {
         displayModal(openModal);
     }
 })
+
+searchBar.addEventListener('input', () => {
+    let input = searchBar.value.toUpperCase();
+    let cards = document.querySelectorAll('.card');
+
+    cards.forEach(card => {
+        let nameH3 = card.querySelector('h3');
+        let employeeName = nameH3.innerHTML.toUpperCase();
+
+        if (!employeeName.includes(input)) {
+            card.classList.add('hidden');
+        } else {
+            card.classList.remove('hidden');
+        }
+    });
+});
