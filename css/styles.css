@@ -122,6 +122,14 @@ header h1 {
    Modal
 ======================================== */
 
+.hidden {
+    display: none;
+}
+
+.show {
+    display: inherit;
+}
+
 .modal-container {
     position: fixed;
     top: 0;

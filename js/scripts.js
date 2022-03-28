@@ -1,5 +1,12 @@
-const randomUserURL = 'https://randomuser.me/api/?results=12&nat=US';
+const randomUserURL = 'https://randomuser.me/api/?results=12&nat=US&exc=login, registered, gender, id';
 const gallery = document.getElementById('gallery');
+const modalContainer = document.querySelector('.modal-container');
+let employees = []; // will fill array with random people
+let openModal; // will store index of currently open modal
+
+// ===========================================================================
+// FETCH DATA
+// ===========================================================================
 
 // fetch 12 random people from api
 fetch(randomUserURL)
@@ -11,27 +18,34 @@ fetch(randomUserURL)
     .then(json => json.results)
 
     // send results data to display employee function
-    .then(data => displayEmployees(data))
+    .then(data => {console.log(data); displayEmployees(data)})
 
     // in case of any errors, log them to the console
     .catch(error => console.error(error));
 
-// function to iterate api response, generate html & display people
-function displayEmployees(employees) {
+// ===========================================================================
+// DISPLAY GALLERY
+// ===========================================================================
 
-    // iterate through each returned user object in array
+// function to iterate api response, generate html & display people
+function displayEmployees(employeeData) {
+
+    // fill empty array with new array of people
+    employees = employeeData;
+
+    // iterate through each user object in array
     employees.forEach((employee, index) => {
         
-        // employee image
         const image = employee.picture.large;
         const name = `${employee.name.first} ${employee.name.last}`;
         const email = employee.email;
         const location = `${employee.location.city}, ${employee.location.state}`;
 
+        // each person in array will return this html to #gallery div
         gallery.insertAdjacentHTML('beforeend', `
-            <div class='card'>
+            <div class='card' data-index='${index}'>
                 <div class='card-img-container'>
-                    <img class='card-img' src='${image}' alt='profile picture'>
+                    <img class='card-img' src='${image}' alt='${employee.name.first}s profile picture'>
                 </div>
                 <div class='card-info-container'>
                     <h3 id='name' class='card-name cap'>${name}</h3>
@@ -42,3 +56,83 @@ function displayEmployees(employees) {
         `);
     });
 }
+
+// ===========================================================================
+// DISPLAY MODAL
+// ===========================================================================
+
+function displayModal(index) {
+
+    // vars for clicked person
+    const selected = employees[index];
+    const image = selected.picture.large;
+    const name = `${selected.name.first} ${selected.name.last}`;
+    const email = selected.email;
+    const city = selected.location.city;
+    const phone = selected.phone;
+    const location = selected.location;
+    const dobDefault = selected.dob.date;
+    const dob = `${dobDefault.substr(5, 2)}/${dobDefault.substr(8, 2)}/${dobDefault.substr(0, 4)}`;
+
+    // remove class hidden
+    modalContainer.classList.toggle('hidden');
+
+    // instert following html into the modal container div
+    modalContainer.insertAdjacentHTML('beforeend', `
+        <div class='modal'>
+            <button type='button' id='modal-close-btn' class='modal-close-btn'><strong>X</strong></button>
+            <div class='modal-info-container'>
+                <img class='modal-img' src='${image}' alt='${name}s profile picture'>
+                <h3 id='name' class='modal-name cap'>${name}</h3>
+                <p class='modal-text'>${email}</p>
+                <p class='modal-text cap'>${city}</p>
+                <hr>
+                <p class='modal-text'>${phone}</p>
+                <p class='modal-text'>${location.street.number} ${location.street.name}, ${location.city}, ${location.state} ${location.postcode}</p>
+                <p class='modal-text'>Birthday: ${dob}</p>
+            </div>
+        </div>
+        <div class='modal-btn-container'>
+            <button type='button' id='modal-prev' class='modal-prev btn'>Prev</button>
+            <button type='button' id='modal-next' class='modal-next btn'>Next</button>
+        </div>
+    `);
+}
+
+// ===========================================================================
+// EVENT LISTENERS
+// ===========================================================================
+
+// listen for clicks inside gallery div
+gallery.addEventListener('click', (e) => {
+
+    // if (a card) is clicked
+    if (e.target !== gallery) {
+
+        // var for clicked card
+        const card = e.target.closest('.card');
+
+        // var for index of card
+        const index = card.getAttribute('data-index');
+
+        // call function to display cards modal
+        displayModal(index);
+
+        // set openModal var to clicked card's index
+        openModal = index;
+    }
+});
+
+// listen for clicks on page (because modal close button may not exist yet)
+document.addEventListener('click', (e) => {
+
+    // if target is modal close button
+    if (e.target.classList.contains('modal-close-btn')) {
+
+        // add hidden class to modal container
+        modalContainer.classList.toggle('hidden');
+
+        // erase all html from modal container
+        modalContainer.innerHTML = '';
+    }
+})
