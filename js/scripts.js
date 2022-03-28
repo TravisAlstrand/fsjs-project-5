@@ -75,7 +75,7 @@ function displayModal(index) {
     const dob = `${dobDefault.substr(5, 2)}/${dobDefault.substr(8, 2)}/${dobDefault.substr(0, 4)}`;
 
     // remove class hidden
-    modalContainer.classList.toggle('hidden');
+    toggleModalHidden();
 
     // instert following html into the modal container div
     modalContainer.insertAdjacentHTML('beforeend', `
@@ -97,6 +97,14 @@ function displayModal(index) {
             <button type='button' id='modal-next' class='modal-next btn'>Next</button>
         </div>
     `);
+}
+
+function clearModal() {
+    modalContainer.innerHTML = '';
+}
+
+function toggleModalHidden() {
+    modalContainer.classList.toggle('hidden');
 }
 
 // ===========================================================================
@@ -126,13 +134,45 @@ gallery.addEventListener('click', (e) => {
 // listen for clicks on page (because modal close button may not exist yet)
 document.addEventListener('click', (e) => {
 
-    // if target is modal close button
-    if (e.target.classList.contains('modal-close-btn')) {
+    const el = e.target;
+
+    // if target is modal close button (or its text)
+    if (el.classList.contains('modal-close-btn') || el.tagName == 'STRONG') {
 
         // add hidden class to modal container
-        modalContainer.classList.toggle('hidden');
+        toggleModalHidden();
 
         // erase all html from modal container
-        modalContainer.innerHTML = '';
+        clearModal();
+    }
+
+    // if left arrow clicked
+    else if (el.classList.contains('modal-prev')) {
+
+        // add hidden class
+        toggleModalHidden();
+
+        // clear modal html
+        clearModal();
+
+        // adjust openModal & allow looping
+        openModal--;
+        if (openModal < 0)
+        {
+            openModal = employees.length -1;
+        }
+
+        // display new modal
+        displayModal(openModal);
+    }
+
+    else if (el.classList.contains('modal-next')) {
+        toggleModalHidden();
+        clearModal();
+        openModal++;
+        if (openModal > employees.length -1) {
+            openModal = 0;
+        }
+        displayModal(openModal);
     }
 })

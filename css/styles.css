@@ -126,10 +126,6 @@ header h1 {
     display: none;
 }
 
-.show {
-    display: inherit;
-}
-
 .modal-container {
     position: fixed;
     top: 0;
